@@ -1,15 +1,13 @@
 const users = require("../models/usersSchema");
 const moment = require("moment");
-const csv = require("fast-csv");
 const fs = require("fs");
-const BASE_URL = process.env.BASE_URL
+const BASE_URL = process.env.BASE_URL;
 
 // register user
 exports.userpost = async (req, res) => {
-    const file = req.file.filename;
-    const { fname, lname, email, mobile, gender, location, status } = req.body;
+    const { fullname, email, mobile, hobbies } = req.body;
 
-    if (!fname || !lname || !email || !mobile || !gender || !location || !status || !file) {
+    if (!fullname || !email || !mobile || !hobbies) {
         res.status(401).json("All Inputs is required")
     }
 
@@ -23,7 +21,7 @@ exports.userpost = async (req, res) => {
             const datecreated = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
 
             const userData = new users({
-                fname, lname, email, mobile, gender, location, status, profile: file, datecreated
+                fullname, email, mobile, hobbies, datecreated
             });
             await userData.save();
             res.status(200).json(userData);
@@ -34,29 +32,38 @@ exports.userpost = async (req, res) => {
     }
 };
 
+// router.route("/profile")
+//     .get(checkLoggedIn, grantAccess('readOwn', 'profile'), async (req, res) => {
+//         try {
+//             const permission = res.locals.permission;
+//             const user = await User.findById(req.user._id);
+//             if (!user) return res.status(400).json({ message: 'User not found' });
 
-// usersget
+//             res.status(200).json(permission.filter(user._doc));
+//         } catch (error) {
+//             return res.status(400).send(error);
+//         }
+//     })
+
+
+
+
 exports.userget = async (req, res) => {
 
     const search = req.query.search || ""
-    const gender = req.query.gender || ""
-    const status = req.query.status || ""
     const sort = req.query.sort || ""
     const page = req.query.page || 1
     const ITEM_PER_PAGE = 4;
 
 
     const query = {
-        fname: { $regex: search, $options: "i" }
+        fullname: { $regex: search, $options: "i" }
     }
 
-    if (gender !== "All") {
-        query.gender = gender
+    if (hobbies !== "All") {
+        query.hobbies = hobbies
     }
 
-    if (status !== "All") {
-        query.status = status
-    }
 
     try {
 
@@ -69,11 +76,11 @@ exports.userget = async (req, res) => {
             .limit(ITEM_PER_PAGE)
             .skip(skip);
 
-        const pageCount = Math.ceil(count/ITEM_PER_PAGE);  // 8 /4 = 2
+        const pageCount = Math.ceil(count / ITEM_PER_PAGE);  // 8 /4 = 2
 
         res.status(200).json({
-            Pagination:{
-                count,pageCount
+            Pagination: {
+                count, pageCount
             },
             usersdata
         })
@@ -98,14 +105,14 @@ exports.singleuserget = async (req, res) => {
 // user edit
 exports.useredit = async (req, res) => {
     const { id } = req.params;
-    const { fname, lname, email, mobile, gender, location, status, user_profile } = req.body;
+    const { fullname, email, mobile, hobbies } = req.body;
     const file = req.file ? req.file.filename : user_profile
 
     const dateUpdated = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
 
     try {
         const updateuser = await users.findByIdAndUpdate({ _id: id }, {
-            fname, lname, email, mobile, gender, location, status, profile: file, dateUpdated
+            fullname, email, mobile, hobbies, dateUpdated
         }, {
             new: true
         });
@@ -123,70 +130,6 @@ exports.userdelete = async (req, res) => {
     try {
         const deletuser = await users.findByIdAndDelete({ _id: id });
         res.status(200).json(deletuser);
-    } catch (error) {
-        res.status(401).json(error)
-    }
-}
-
-// chnage status
-exports.userstatus = async (req, res) => {
-    const { id } = req.params;
-    const { data } = req.body;
-
-    try {
-        const userstatusupdate = await users.findByIdAndUpdate({ _id: id }, { status: data }, { new: true });
-        res.status(200).json(userstatusupdate)
-    } catch (error) {
-        res.status(401).json(error)
-    }
-}
-
-// export user
-exports.userExport = async (req, res) => {
-    try {
-        const usersdata = await users.find();
-
-        const csvStream = csv.format({ headers: true });
-
-        if (!fs.existsSync("public/files/export/")) {
-            if (!fs.existsSync("public/files")) {
-                fs.mkdirSync("public/files/");
-            }
-            if (!fs.existsSync("public/files/export")) {
-                fs.mkdirSync("./public/files/export/");
-            }
-        }
-
-        const writablestream = fs.createWriteStream(
-            "public/files/export/users.csv"
-        );
-
-        csvStream.pipe(writablestream);
-
-        writablestream.on("finish", function () {
-            res.json({
-                downloadUrl: `${BASE_URL}/files/export/users.csv`,
-            });
-        });
-        if (usersdata.length > 0) {
-            usersdata.map((user) => {
-                csvStream.write({
-                    FirstName: user.fname ? user.fname : "-",
-                    LastName: user.lname ? user.lname : "-",
-                    Email: user.email ? user.email : "-",
-                    Phone: user.mobile ? user.mobile : "-",
-                    Gender: user.gender ? user.gender : "-",
-                    Status: user.status ? user.status : "-",
-                    Profile: user.profile ? user.profile : "-",
-                    Location: user.location ? user.location : "-",
-                    DateCreated: user.datecreated ? user.datecreated : "-",
-                    DateUpdated: user.dateUpdated ? user.dateUpdated : "-",
-                })
-            })
-        }
-        csvStream.end();
-        writablestream.end();
-
     } catch (error) {
         res.status(401).json(error)
     }
