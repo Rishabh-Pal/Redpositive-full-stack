@@ -5,9 +5,9 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Select from 'react-select';
 import Spiner from "../../components/Spiner/Spiner"
-import {registerfunc} from "../../services/Apis"
+import { registerfunc } from "../../services/Apis"
 import { ToastContainer, toast } from "react-toastify"
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import 'react-toastify/dist/ReactToastify.css';
 import "./register.css"
 import { addData } from '../../components/context/ContextProvider';
@@ -55,7 +55,7 @@ const Register = () => {
   }
 
   //submit userdata
-  const submitUserData = async(e) => {
+  const submitUserData = async (e) => {
     e.preventDefault();
 
     const { fname, lname, email, mobile, gender, location } = inputdata;
@@ -84,25 +84,25 @@ const Register = () => {
       console.log(image);
 
       const data = new FormData();
-      data.append("fname",fname)
-      data.append("lname",lname)
-      data.append("email",email)
-      data.append("mobile",mobile)
-      data.append("gender",gender)
-      data.append("status",status)
-      data.append("user_profile",image)
-      data.append("location",location)
+      data.append("fname", fname)
+      data.append("lname", lname)
+      data.append("email", email)
+      data.append("mobile", mobile)
+      data.append("gender", gender)
+      data.append("status", status)
+      data.append("user_profile", image)
+      data.append("location", location)
 
       const config = {
-        "Content-Type":"multipart/form-data"
+        "Content-Type": "multipart/form-data"
       }
 
-      const response = await registerfunc(data,config);
-      
-      if(response.status === 200){
+      const response = await registerfunc(data, config);
+
+      if (response.status === 200) {
         setInputData({
           ...inputdata,
-          fname:"",
+          fname: "",
           lname: "",
           email: "",
           mobile: "",
@@ -113,7 +113,7 @@ const Register = () => {
         setImage("");
         setUseradd(response.data)
         navigate("/");
-      }else{
+      } else {
         toast.error("Error!")
       }
 
@@ -179,7 +179,7 @@ const Register = () => {
                 </Form.Group>
                 <Form.Group className="mb-3 col-lg-6" controlId="formBasicEmail">
                   <Form.Label>Select Your Status</Form.Label>
-                  <Select options={options}  onChange={setStatusValue} />
+                  <Select options={options} onChange={setStatusValue} />
                 </Form.Group>
                 <Form.Group className="mb-3 col-lg-6" controlId="formBasicEmail">
                   <Form.Label>Select Your Profile</Form.Label>

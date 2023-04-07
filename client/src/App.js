@@ -1,5 +1,5 @@
 import './App.css';
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from "./components/Headers/Headers";
 import Home from "./pages/Home/Home";
 import Register from "./pages/Register/Register";

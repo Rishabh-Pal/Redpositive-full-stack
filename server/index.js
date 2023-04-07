@@ -1,29 +1,19 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
 const app = express();
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-require('dotenv').config();
-
-// const users = require("./routes/api/users");
-// const articles = require('./routes/api/articles');
-// const { checkToken } = require('./middleware/auth');
-
-const mongoUri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}?retryWrites=true&w=majority`;
-mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false
-})
-
-app.use(bodyParser.json())
-app.use(checkToken)
-app.use("/api/users", users)
-app.use("/api/articles", articles)
+require("./db/conn");
+const cors = require("cors");
+const router = require("./Routes/router");
+const PORT = process.env.PORT || 6010
 
 
+app.use(cors());
+app.use(express.json());
+app.use("/uploads", express.static("./uploads"));
+app.use("/files", express.static("./public/files"));
 
-const port = process.env.PORT || 3002;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+app.use(router);
+
+app.listen(PORT, () => {
+    console.log(`Server start at port no ${PORT}`)
 })

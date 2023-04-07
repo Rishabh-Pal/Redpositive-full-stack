@@ -8,7 +8,7 @@ const Headers = () => {
   return (
     <>
       <Navbar bg="dark" variant="dark" style={{ height: "50px" }}>
-        <Container className='flex justify-center items-center '>
+        <Container>
           <NavLink to="/" className="text-decoration-none text-light mx-2">Navbar</NavLink>
           <Nav className="me-auto">
             <NavLink to="/" className="text-decoration-none text-light ">Home</NavLink>
